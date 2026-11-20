@@ -1,0 +1,30 @@
+{
+  "name": "t029-phuong-hoang-tru-tien",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3007",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test src/lib/format.test.ts src/lib/vtvlive-sdk/parsers.test.ts src/lib/urls.test.ts src/mocks/mock-data.test.ts"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.18",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "swiper": "^11.2.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5"
+  }
+}

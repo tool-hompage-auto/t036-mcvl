@@ -1,0 +1,11 @@
+/* =============================================================================
+   GALLERY SLIDER — ghi đè style Swiper của block `gallery-slider` bản desktop (slider coverflow
+   cuối section announcement). Bản gốc: `#slide-landing` trong `index.scss`.
+   Đặt ngoài @layer để thắng class `opacity-*` của Tailwind.
+   ============================================================================= */
+[data-block="gallery-slider"][data-variant="desktop"] .swiper-slide:not(.swiper-slide-active) {
+  filter: grayscale(0.6);
+}
+[data-block="gallery-slider"][data-variant="desktop"] .swiper-slide:not(.swiper-slide-visible) {
+  opacity: 0;
+}

@@ -1,0 +1,224 @@
+@import "tailwindcss";
+@import "../styles/cms-content.css";
+@import "../styles/scale-layout.css";
+@import "../styles/gallery-slider.css";
+
+/* =============================================================================
+   GLOBAL STYLES — Phượng Hoàng Tru Tiên
+   -----------------------------------------------------------------------------
+   HỆ ĐƠN VỊ THIẾT KẾ (site scale; chuẩn chung: STANDARD.md mục 6):
+
+   Bản gốc KHÔNG dùng vw cho nội dung trang. Toàn bộ nội dung được dựng bằng px
+   trên một khung có chiều rộng cố định rồi phóng/thu cả khung bằng
+   `transform: scale()` theo chiều rộng màn hình (xem components/layout/ScaleLayout.tsx
+   và styles/scale-layout.css):
+
+     Màn hình            Khung dựng (#transformWrapper)   Tỉ lệ scale
+     <= 768px            768px                            vw / 768
+     769px .. 1920px     1920px                           vw / 1920
+     > 1920px            2560px                           vw / 2560
+
+   `--spacing: 1px` nên bên trong ScaleLayout số trong class = px trên file thiết kế:
+     w-500       -> rộng 500px trên khung thiết kế
+     pc:top-40   -> cách trên 40px ở bản desktop (>= 769px)
+     fs-18       -> cỡ chữ 18px (kèm leading-28 khi cần giữ chiều cao dòng)
+   (Bản gốc dùng thang mặc định của Tailwind, 1 đơn vị = 4px: `w-125` của bản gốc = `w-500` ở đây.)
+
+   Thành phần nằm NGOÀI ScaleLayout (header mobile, menu trượt, side menu, nút BXH, logo 18+)
+   không được scale: bản gốc dùng px thật cho chúng, giữ nguyên như vậy.
+
+   Variant: mb (<= 768px) · pc (>= 769px) · wide (>= 1921px, chưa dùng)
+            header-compact (>= 640px, header mobile thu nhỏ logo)
+            float-scale (utility, không phải variant): thu nhỏ nút nổi theo mốc 769 / 1024px
+   ============================================================================= */
+
+/* ----------------------------------- Token ----------------------------------- */
+@theme {
+  /* 1 đơn vị = 1px (px thiết kế khi nằm trong ScaleLayout). */
+  --spacing: 1px;
+
+  /* Font chữ: Inter nạp bằng next/font trong layout.tsx (gọi thẳng tên font để không chèn font dự phòng). */
+  --font-sans: "Inter", sans-serif;
+
+  /* Màu thương hiệu và màu dùng lặp lại. */
+  --color-primary: #148d6f;
+  --color-primary-active: #088967;
+  --color-gold: #faea05;
+  --color-body: #1d1d1d;
+  --color-muted: #818181;
+  --color-scroll-track: transparent;
+  --color-scroll-thumb: #c3c3c3;
+  --color-link-hover: #c32700;
+  --color-crimson: #970000;
+  --color-ash: #6d6d6d;
+
+  /* Hiệu ứng (khai báo @keyframes cùng tên ở cuối file). */
+  --animate-shine: shine linear 2.5s infinite 1s;
+  --animate-title-pop: title-pop 0.8s ease forwards;
+}
+
+/* --------------------------------- Variant ---------------------------------- */
+/* Khung mobile (<= 768px) và desktop (>= 769px): trùng mốc đổi khung thiết kế. */
+@custom-variant mb (@media (max-width: 768px));
+@custom-variant pc (@media (min-width: 769px));
+/* Khung lớn (>= 1921px). */
+@custom-variant wide (@media (min-width: 1921px));
+/* Header mobile: từ 640px logo game thu nhỏ còn 70px. */
+@custom-variant header-compact (@media (min-width: 640px));
+
+/* --------------------------------- Utility ---------------------------------- */
+/* Cỡ chữ theo px thiết kế: fs-18 = 18px. */
+@utility fs-* {
+  font-size: --spacing(--value(number));
+}
+
+/* Chiều cao dòng theo px thiết kế: leading-28 = 28px (đi cùng fs-*). */
+@utility lh-* {
+  line-height: --spacing(--value(number));
+}
+
+/* Nút nổi (side menu, nút BXH) không nằm trong ScaleLayout nên tự thu nhỏ theo mốc màn hình:
+   769px -> 0.65 · từ 1024px -> 0.85 (bản live: breakpoint xl 1920px bị xếp trước lg nên không bao giờ thắng). Dùng thuộc tính `scale` để ghép với `-translate-y-1/2`. */
+@utility float-scale {
+  scale: 0.65;
+  @media screen and (min-width: 1024px) {
+    scale: 0.85;
+  }
+}
+
+/* Nút mở menu mobile: 3 gạch, trạng thái `.active` biến thành dấu X. */
+@utility btn-mobile-menu {
+  position: relative;
+  display: block;
+  width: 35px;
+  height: 23px;
+  & span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: block;
+    height: 2px;
+    background: white;
+    border-radius: 5px;
+    transition: 0.1s ease-in-out;
+  }
+  & span:first-of-type {
+    top: 0;
+  }
+  & span:nth-of-type(2) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  & span:last-of-type {
+    bottom: 0;
+  }
+  &.active span:first-of-type {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+  }
+  &.active span:nth-of-type(2) {
+    left: 50%;
+    right: 50%;
+    opacity: 0;
+  }
+  &.active span:last-of-type {
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+  }
+}
+
+/* Vệt sáng lướt qua logo / nút: đặt lên một bản sao của ảnh, phủ đúng vị trí ảnh gốc. */
+@utility shine-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  overflow: hidden;
+  filter: brightness(2);
+  -webkit-mask-size: 300% 200%;
+  mask-size: 300% 200%;
+  -webkit-mask-image: -webkit-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0) 40%,
+    #fff 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  mask-image: -webkit-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0) 40%,
+    #fff 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+
+/* Thanh cuộn xám của bảng xếp hạng. */
+@utility scrollbar-ranking {
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px #81818133;
+    border-radius: 50px;
+    background-color: #81818133;
+  }
+  &::-webkit-scrollbar {
+    width: 15px;
+    background-color: #81818133;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 50px;
+    -webkit-box-shadow: inset 0 0 6px #818181;
+    background-color: #818181;
+  }
+}
+
+/* ------------------------------- Base (layer) ------------------------------- */
+@layer base {
+  /* Trang không cuộn trên body: vùng cuộn là #scaleWrapper (cao đúng 1 màn hình). */
+  body {
+    min-height: 100vh;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  picture {
+    display: block;
+  }
+  picture img {
+    display: block;
+    object-fit: contain;
+  }
+}
+
+/* -------------------------------- Keyframes --------------------------------- */
+/* Vệt sáng lướt qua logo (class: shine-overlay animate-shine). */
+@keyframes shine {
+  from {
+    -webkit-mask-position: 150% 0px;
+    mask-position: 150% 0px;
+  }
+  100% {
+    -webkit-mask-position: 0% 0px;
+    mask-position: 0% 0px;
+  }
+}
+
+/* Logo hero nảy lên một lần khi vào trang. */
+@keyframes title-pop {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-10px) scale(1.1);
+  }
+  60% {
+    transform: translateY(-5px) scale(1.02);
+  }
+}
